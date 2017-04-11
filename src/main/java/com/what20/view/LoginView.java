@@ -24,6 +24,8 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.what20.event.What20Event.UserLoginRequestedEvent;
+import com.what20.event.What20EventBus;
 
 @SuppressWarnings("serial")
 public class LoginView extends VerticalLayout {
@@ -83,7 +85,7 @@ public class LoginView extends VerticalLayout {
         signin.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(final ClickEvent event) {
-                DashboardEventBus.post(new UserLoginRequestedEvent(username
+                What20EventBus.post(new UserLoginRequestedEvent(username
                         .getValue(), password.getValue()));
             }
         });

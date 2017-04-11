@@ -8,6 +8,7 @@ package com.what20.view;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.what20.What20Navigator;
 
 /*
  * Dashboard MainView is a simple HorizontalLayout that wraps the menu on the
@@ -20,7 +21,7 @@ public class MainView extends HorizontalLayout {
         setSizeFull();
         addStyleName("mainview");
 
-        addComponent(new DashboardMenu());
+        addComponent(new What20Menu());
 
         ComponentContainer content = new CssLayout();
         content.addStyleName("view-content");

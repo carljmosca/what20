@@ -11,13 +11,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.demo.dashboard.event.DashboardEvent.BrowserResizeEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.CloseOpenWindowsEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.UserLoggedOutEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.UserLoginRequestedEvent;
-import com.vaadin.demo.dashboard.event.DashboardEventBus;
-import com.vaadin.demo.dashboard.view.LoginView;
-import com.vaadin.demo.dashboard.view.MainView;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Responsive;
@@ -28,6 +21,13 @@ import com.vaadin.ui.themes.ValoTheme;
 import com.what20.data.DataProvider;
 import com.what20.data.db.DbDataProvider;
 import com.what20.data.domain.User;
+import com.what20.event.What20Event.BrowserResizeEvent;
+import com.what20.event.What20Event.CloseOpenWindowsEvent;
+import com.what20.event.What20Event.UserLoggedOutEvent;
+import com.what20.event.What20Event.UserLoginRequestedEvent;
+import com.what20.event.What20EventBus;
+import com.what20.view.LoginView;
+import com.what20.view.MainView;
 
 @Theme("dashboard")
 @Widgetset("com.vaadin.demo.dashboard.DashboardWidgetSet")
@@ -42,13 +42,13 @@ public final class What20UI extends UI {
      * actually accessed.
      */
     private final DataProvider dataProvider = new DbDataProvider();
-    private final DashboardEventBus dashboardEventbus = new DashboardEventBus();
+    private final What20EventBus what20Eventbus = new What20EventBus();
 
     @Override
     protected void init(final VaadinRequest request) {
         setLocale(Locale.US);
 
-        DashboardEventBus.register(this);
+        What20EventBus.register(this);
         Responsive.makeResponsive(this);
         addStyleName(ValoTheme.UI_WITH_MENU);
 
@@ -57,7 +57,7 @@ public final class What20UI extends UI {
         // Some views need to be aware of browser resize events so a
         // BrowserResizeEvent gets fired to the event bus on every occasion.
         Page.getCurrent().addBrowserWindowResizeListener((final BrowserWindowResizeEvent event) -> {
-            DashboardEventBus.post(new BrowserResizeEvent());
+            What20EventBus.post(new BrowserResizeEvent());
         });
     }
 
@@ -111,7 +111,7 @@ public final class What20UI extends UI {
         return ((What20UI) getCurrent()).dataProvider;
     }
 
-    public static DashboardEventBus getDashboardEventbus() {
-        return ((What20UI) getCurrent()).dashboardEventbus;
+    public static What20EventBus getWhat20Eventbus() {
+        return ((What20UI) getCurrent()).what20Eventbus;
     }
 }

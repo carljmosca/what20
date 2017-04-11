@@ -9,25 +9,14 @@ package com.what20.view;
 import java.util.Collection;
 
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.demo.dashboard.DashboardUI;
-import com.vaadin.demo.dashboard.component.ProfilePreferencesWindow;
-import com.vaadin.demo.dashboard.domain.Transaction;
-import com.vaadin.demo.dashboard.domain.User;
-import com.vaadin.demo.dashboard.event.DashboardEvent.NotificationsCountUpdatedEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.PostViewChangeEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.ProfileUpdatedEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.ReportsCountUpdatedEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.TransactionReportEvent;
-import com.vaadin.demo.dashboard.event.DashboardEvent.UserLoggedOutEvent;
-import com.vaadin.demo.dashboard.event.DashboardEventBus;
+import com.google.gwt.thirdparty.guava.common.collect.Table;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractSelect.AcceptItem;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -42,9 +31,18 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+import com.what20.What20UI;
+import com.what20.data.domain.User;
+import com.what20.event.What20Event.NotificationsCountUpdatedEvent;
+import com.what20.event.What20Event.PostViewChangeEvent;
+import com.what20.event.What20Event.ProfileUpdatedEvent;
+import com.what20.event.What20Event.ReportsCountUpdatedEvent;
+import com.what20.event.What20Event.TransactionReportEvent;
+import com.what20.event.What20Event.UserLoggedOutEvent;
+import com.what20.event.What20EventBus;
+import org.eclipse.jetty.plus.jndi.Transaction;
 
 /**
  * A responsive menu component providing user information and the controls for
@@ -68,7 +66,7 @@ public final class What20Menu extends CustomComponent {
 
         // There's only one DashboardMenu per UI so this doesn't need to be
         // unregistered from the UI-scoped DashboardEventBus.
-        DashboardEventBus.register(this);
+        What20EventBus.register(this);
 
         setCompositionRoot(buildContent());
     }
@@ -128,7 +126,7 @@ public final class What20Menu extends CustomComponent {
         settingsItem.addItem("Sign Out", new Command() {
             @Override
             public void menuSelected(final MenuItem selectedItem) {
-                DashboardEventBus.post(new UserLoggedOutEvent());
+                What20EventBus.post(new UserLoggedOutEvent());
             }
         });
         return settings;
@@ -156,10 +154,10 @@ public final class What20Menu extends CustomComponent {
         CssLayout menuItemsLayout = new CssLayout();
         menuItemsLayout.addStyleName("valo-menuitems");
 
-        for (final DashboardViewType view : DashboardViewType.values()) {
+        for (final What20ViewType view : What20ViewType.values()) {
             Component menuItemComponent = new ValoMenuItemButton(view);
 
-            if (view == DashboardViewType.REPORTS) {
+            if (view == What20ViewType.REPORTS) {
                 // Add drop target to reports button
                 DragAndDropWrapper reports = new DragAndDropWrapper(
                         menuItemComponent);
@@ -172,10 +170,10 @@ public final class What20Menu extends CustomComponent {
                         UI.getCurrent()
                                 .getNavigator()
                                 .navigateTo(
-                                        DashboardViewType.REPORTS.getViewName());
+                                        What20ViewType.REPORTS.getViewName());
                         Table table = (Table) event.getTransferable()
                                 .getSourceComponent();
-                        DashboardEventBus.post(new TransactionReportEvent(
+                        What20EventBus.post(new TransactionReportEvent(
                                 (Collection<Transaction>) table.getValue()));
                     }
 
@@ -188,13 +186,13 @@ public final class What20Menu extends CustomComponent {
                 menuItemComponent = reports;
             }
 
-            if (view == DashboardViewType.DASHBOARD) {
+            if (view == What20ViewType.DASHBOARD) {
                 notificationsBadge = new Label();
                 notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
                         notificationsBadge);
             }
-            if (view == DashboardViewType.REPORTS) {
+            if (view == What20ViewType.REPORTS) {
                 reportsBadge = new Label();
                 reportsBadge.setId(REPORTS_BADGE_ID);
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
@@ -234,7 +232,7 @@ public final class What20Menu extends CustomComponent {
     @Subscribe
     public void updateNotificationsCount(
             final NotificationsCountUpdatedEvent event) {
-        int unreadNotificationsCount = DashboardUI.getDataProvider()
+        int unreadNotificationsCount = What20UI.getDataProvider()
                 .getUnreadNotificationsCount();
         notificationsBadge.setValue(String.valueOf(unreadNotificationsCount));
         notificationsBadge.setVisible(unreadNotificationsCount > 0);
@@ -256,15 +254,15 @@ public final class What20Menu extends CustomComponent {
 
         private static final String STYLE_SELECTED = "selected";
 
-        private final DashboardViewType view;
+        private final What20ViewType view;
 
-        public ValoMenuItemButton(final DashboardViewType view) {
+        public ValoMenuItemButton(final What20ViewType view) {
             this.view = view;
             setPrimaryStyleName("valo-menu-item");
             setIcon(view.getIcon());
             setCaption(view.getViewName().substring(0, 1).toUpperCase()
                     + view.getViewName().substring(1));
-            DashboardEventBus.register(this);
+            What20EventBus.register(this);
             addClickListener(new ClickListener() {
                 @Override
                 public void buttonClick(final ClickEvent event) {
