@@ -11,9 +11,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.demo.dashboard.data.DataProvider;
-import com.vaadin.demo.dashboard.data.dummy.DummyDataProvider;
-import com.vaadin.demo.dashboard.domain.User;
 import com.vaadin.demo.dashboard.event.DashboardEvent.BrowserResizeEvent;
 import com.vaadin.demo.dashboard.event.DashboardEvent.CloseOpenWindowsEvent;
 import com.vaadin.demo.dashboard.event.DashboardEvent.UserLoggedOutEvent;
@@ -23,13 +20,14 @@ import com.vaadin.demo.dashboard.view.LoginView;
 import com.vaadin.demo.dashboard.view.MainView;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.what20.data.DataProvider;
+import com.what20.data.db.DbDataProvider;
+import com.what20.data.domain.User;
 
 @Theme("dashboard")
 @Widgetset("com.vaadin.demo.dashboard.DashboardWidgetSet")
@@ -43,7 +41,7 @@ public final class What20UI extends UI {
      * injection; and not in the UI but somewhere closer to where they're
      * actually accessed.
      */
-    private final DataProvider dataProvider = new DummyDataProvider();
+    private final DataProvider dataProvider = new DbDataProvider();
     private final DashboardEventBus dashboardEventbus = new DashboardEventBus();
 
     @Override
@@ -101,9 +99,9 @@ public final class What20UI extends UI {
 
     @Subscribe
     public void closeOpenWindows(final CloseOpenWindowsEvent event) {
-        for (Window window : getWindows()) {
+        getWindows().forEach((window) -> {
             window.close();
-        }
+        });
     }
 
     /**
